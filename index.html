@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JKT48 Quota Tracker</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 20px; background-color: #f8fafc; color: #334155; }
+        h1 { color: #e11d48; margin-bottom: 5px; }
+        .meta { color: #64748b; font-size: 0.9rem; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        th, td { padding: 14px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { background-color: #e11d48; color: white; font-weight: 600; }
+        tr:hover { background-color: #f1f5f9; }
+        .habis { color: #ef4444; font-weight: bold; background-color: #fee2e2; padding: 4px 8px; border-radius: 4px; }
+        .tersedia { color: #16a34a; font-weight: bold; background-color: #dcfce7; padding: 4px 8px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <h1>JKT48 2-Shot & MnG Tracker</h1>
+    <p class="meta">Waktu Update: <span id="last-update">Memuat...</span> (Otomatis tiap 15 menit)</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nama Member</th>
+                <th>Sesi</th>
+                <th>Sisa Kuota / Status</th>
+            </tr>
+        </thead>
+        <tbody id="quota-table">
+            <tr>
+                <td colspan="3" style="text-align:center;">Mengambil data terbaru...</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        // Mengambil data dari data.json yang digenerate oleh Python
+        fetch('data.json')
+            .then(response => response.json())
+            .then(res => {
+                document.getElementById('last-update').innerText = res.last_update + " WIB";
+                const tbody = document.getElementById('quota-table');
+                tbody.innerHTML = '';
+
+                res.data.forEach(item => {
+                    const tr = document.createElement('tr');
+                    let statusClass = (item.status === 'Habis' || item.status === '0') ? 'habis' : 'tersedia';
+
+                    tr.innerHTML = `
+                        <td><b>${item.member}</b></td>
+                        <td>${item.sesi}</td>
+                        <td><span class="${statusClass}">${item.status}</span></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            })
+            .catch(err => {
+                document.getElementById('quota-table').innerHTML = '<tr><td colspan="3" style="text-align:center; color:red;">Gagal memuat data. Pastikan script scraper sudah berjalan minimal sekali.</td></tr>';
+            });
+    </script>
+</body>
+</html>
