@@ -1,0 +1,36 @@
+name: Auto Update JKT48 Quota
+
+on:
+  schedule:
+    - cron: '*/15 * * * *' # Berjalan otomatis setiap 15 menit
+  workflow_dispatch: # Tombol rahasia biar lu bisa klik "Run" manual kapan aja di GitHub
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        pip install requests beautifulsoup4
+
+    - name: Run Scraper
+      run: python scraper.py
+
+    - name: Commit and Push changes
+      run: |
+        git config --global user.name "Bot Tracker"
+        git config --global user.email "bot@tracker.com"
+        git add data.json
+        git diff-index --quiet HEAD || git commit -m "Update kuota otomatis [skip ci]"
+        git push
